@@ -85,7 +85,7 @@ def route_customer(scored_customer: dict) -> dict:
         )
     
     # Rule 5 — Medium score, some signals
-    if priority in ("medium", "high"):
+    if priority in ("medium", "high", "critical"):
         return _build_result(
             scored_customer,
             action="automated_welcome_email",
