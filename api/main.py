@@ -112,3 +112,14 @@ def get_dashboard_summary():
             for c in top_5
         ]
     }
+
+
+@app.post("/refresh")
+def refresh_data():
+    """Reload and reprocess all customer data."""
+    global CUSTOMERS
+    CUSTOMERS = load_and_process_customers()
+    return {
+        "status": "refreshed",
+        "total_customers": len(CUSTOMERS)
+    }
