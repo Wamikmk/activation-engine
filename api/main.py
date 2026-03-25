@@ -1,6 +1,6 @@
 import json
 from fastapi import FastAPI, HTTPException
-
+from engine.llm import generate_email
 from engine.scorer import score_customer
 from engine.router import route_customer
 
@@ -123,3 +123,19 @@ def refresh_data():
         "status": "refreshed",
         "total_customers": len(CUSTOMERS)
     }
+
+@app.get("/customers/{customer_id}/email")
+def get_customer_email(customer_id: str, use_llm: bool = False):
+    """Generate an email for a specific customer.
+    
+    Add ?use_llm=true to use Claude API for personalized content.
+    """
+    for customer in CUSTOMERS:
+        if customer["customer_id"] == customer_id:
+            email = generate_email(customer, use_llm=use_llm)
+            return email
+    
+    raise HTTPException(
+        status_code=404,
+        detail=f"Customer {customer_id} not found"
+    )
