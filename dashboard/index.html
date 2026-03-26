@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activation Engine — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0E11;
+    --bg-card: #141820;
+    --bg-card-hover: #1A1F2B;
+    --bg-detail: #111519;
+    --border: #1E2530;
+    --text: #E8ECF1;
+    --text-muted: #7A8494;
+    --text-dim: #4A5568;
+    --accent: #6C8EEF;
+    --accent-dim: rgba(108, 142, 239, 0.12);
+    --critical: #EF6C6C;
+    --critical-bg: rgba(239, 108, 108, 0.10);
+    --high: #EFA76C;
+    --high-bg: rgba(239, 167, 108, 0.10);
+    --medium: #EFDA6C;
+    --medium-bg: rgba(239, 218, 108, 0.10);
+    --low: #7A8494;
+    --low-bg: rgba(122, 132, 148, 0.08);
+    --converted: #6CEFB1;
+    --converted-bg: rgba(108, 239, 177, 0.10);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* --- HEADER --- */
+  .header {
+    padding: 28px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header h1 .dot {
+    width: 8px; height: 8px;
+    background: #6CEFB1;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .header-actions .last-refresh {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover {
+    background: var(--bg-card-hover);
+    color: var(--text);
+    border-color: #2A3344;
+  }
+  .btn-accent {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: rgba(108, 142, 239, 0.25);
+  }
+  .btn-accent:hover {
+    background: rgba(108, 142, 239, 0.2);
+    border-color: rgba(108, 142, 239, 0.4);
+  }
+
+  /* --- LAYOUT --- */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    height: calc(100vh - 77px);
+  }
+  .main-panel {
+    padding: 24px 32px;
+    overflow-y: auto;
+  }
+  .detail-panel {
+    background: var(--bg-detail);
+    border-left: 1px solid var(--border);
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  /* --- STATS ROW --- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card:hover {
+    background: var(--bg-card-hover);
+    border-color: #2A3344;
+    transform: translateY(-1px);
+  }
+  .stat-card.active {
+    border-color: var(--accent);
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: -1px;
+  }
+  .stat-card.critical::before { background: var(--critical); }
+  .stat-card.critical .stat-label { color: var(--critical); }
+  .stat-card.critical .stat-value { color: var(--critical); }
+  .stat-card.high::before { background: var(--high); }
+  .stat-card.high .stat-label { color: var(--high); }
+  .stat-card.high .stat-value { color: var(--high); }
+  .stat-card.medium::before { background: var(--medium); }
+  .stat-card.medium .stat-label { color: var(--medium); }
+  .stat-card.medium .stat-value { color: var(--medium); }
+  .stat-card.low::before { background: var(--low); }
+  .stat-card.low .stat-label { color: var(--low); }
+  .stat-card.low .stat-value { color: var(--low); }
+  .stat-card.converted::before { background: var(--converted); }
+  .stat-card.converted .stat-label { color: var(--converted); }
+  .stat-card.converted .stat-value { color: var(--converted); }
+
+  /* --- SECTION HEADER --- */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-header h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: -0.2px;
+  }
+  .section-header .filter-info {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* --- CUSTOMER TABLE --- */
+  .customer-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .customer-table thead th {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 1;
+  }
+  .customer-table tbody tr {
+    cursor: pointer;
+    transition: background 0.1s;
+    border-bottom: 1px solid rgba(30, 37, 48, 0.5);
+  }
+  .customer-table tbody tr:hover {
+    background: var(--bg-card);
+  }
+  .customer-table tbody tr.selected {
+    background: var(--accent-dim);
+  }
+  .customer-table tbody td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .priority-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .priority-badge.critical { background: var(--critical-bg); color: var(--critical); }
+  .priority-badge.high { background: var(--high-bg); color: var(--high); }
+  .priority-badge.medium { background: var(--medium-bg); color: var(--medium); }
+  .priority-badge.low { background: var(--low-bg); color: var(--low); }
+  .priority-badge.converted { background: var(--converted-bg); color: var(--converted); }
+
+  .score-bar-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    max-width: 80px;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .score-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    min-width: 36px;
+  }
+  .action-tag {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+
+  /* --- DETAIL PANEL --- */
+  .detail-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-dim);
+    font-size: 14px;
+    text-align: center;
+    gap: 8px;
+  }
+  .detail-empty .arrow-hint {
+    font-size: 24px;
+    opacity: 0.3;
+  }
+
+  .detail-header {
+    margin-bottom: 24px;
+  }
+  .detail-header .customer-name {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+  .detail-header .customer-id {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .detail-section {
+    margin-bottom: 22px;
+  }
+  .detail-section-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .detail-field {
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .detail-field .field-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+  }
+  .detail-field .field-value {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* Score breakdown bars */
+  .score-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .breakdown-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    width: 80px;
+    flex-shrink: 0;
+  }
+  .breakdown-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .breakdown-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .breakdown-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .action-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .action-card .action-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--accent);
+  }
+  .action-card .action-reason {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .action-card .action-urgency {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-dim);
+  }
+
+  /* Email section */
+  .email-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 10px;
+  }
+  .email-card .email-subject {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .email-card .email-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .email-card .email-meta {
+    margin-top: 10px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-dim);
+  }
+  .email-loading {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2A3344; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span class="dot"></span> Activation Engine</h1>
+  <div class="header-actions">
+    <span class="last-refresh" id="lastRefresh"></span>
+    <button class="btn" onclick="refreshData()">Refresh Data</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- LEFT: Main panel -->
+  <div class="main-panel">
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="section-header">
+      <h2>Priority Queue</h2>
+      <span class="filter-info" id="filterInfo">All customers</span>
+    </div>
+
+    <table class="customer-table">
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th>Priority</th>
+          <th>Score</th>
+          <th>Action</th>
+          <th>Logins</th>
+        </tr>
+      </thead>
+      <tbody id="customerList"></tbody>
+    </table>
+  </div>
+
+  <!-- RIGHT: Detail panel -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-empty">
+      <div class="arrow-hint">&larr;</div>
+      <div>Select a customer to view details</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let allCustomers = [];
+let selectedId = null;
+let activeFilter = null;
+
+// --- DATA LOADING ---
+
+async function loadDashboard() {
+  try {
+    const [summaryRes, customersRes] = await Promise.all([
+      fetch(`${API}/dashboard/summary`),
+      fetch(`${API}/customers?limit=200`)
+    ]);
+    const summary = await summaryRes.json();
+    const customersData = await customersRes.json();
+    allCustomers = customersData.customers;
+
+    renderStats(summary);
+    renderCustomers(allCustomers);
+    document.getElementById('lastRefresh').textContent =
+      'Updated ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    console.error('Failed to load:', err);
+  }
+}
+
+async function refreshData() {
+  try {
+    await fetch(`${API}/refresh`, { method: 'POST' });
+    await loadDashboard();
+  } catch (err) {
+    console.error('Refresh failed:', err);
+  }
+}
+
+// --- STATS ---
+
+function renderStats(summary) {
+  const priorities = ['critical', 'high', 'medium', 'low', 'converted'];
+  const container = document.getElementById('statsRow');
+  container.innerHTML = priorities.map(p => {
+    const count = summary.priority_breakdown[p] || 0;
+    const isActive = activeFilter === p ? 'active' : '';
+    return `
+      <div class="stat-card ${p} ${isActive}" onclick="filterByPriority('${p}')">
+        <div class="stat-label">${p}</div>
+        <div class="stat-value">${count}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// --- CUSTOMER LIST ---
+
+function filterByPriority(priority) {
+  if (activeFilter === priority) {
+    activeFilter = null;
+    renderCustomers(allCustomers);
+    document.getElementById('filterInfo').textContent = 'All customers';
+  } else {
+    activeFilter = priority;
+    const filtered = allCustomers.filter(c => c.priority === priority);
+    renderCustomers(filtered);
+    document.getElementById('filterInfo').textContent =
+      `Filtered: ${priority} (${filtered.length})`;
+  }
+  // Re-render stats to show active state
+  fetch(`${API}/dashboard/summary`)
+    .then(r => r.json())
+    .then(s => renderStats(s));
+}
+
+function renderCustomers(customers) {
+  const tbody = document.getElementById('customerList');
+  tbody.innerHTML = customers.map(c => {
+    const selected = c.customer_id === selectedId ? 'selected' : '';
+    const scoreColor = getScoreColor(c.total_score);
+    const actionLabel = c.recommended_action.replace(/_/g, ' ');
+    return `
+      <tr class="${selected}" onclick="selectCustomer('${c.customer_id}')">
+        <td>
+          <div style="font-weight:500">${c.full_name}</div>
+          <div style="font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace">${c.customer_id}</div>
+        </td>
+        <td><span class="priority-badge ${c.priority}">${c.priority}</span></td>
+        <td>
+          <div class="score-bar-cell">
+            <span class="score-num" style="color:${scoreColor}">${c.total_score.toFixed(1)}</span>
+            <div class="score-bar">
+              <div class="score-bar-fill" style="width:${c.total_score}%;background:${scoreColor}"></div>
+            </div>
+          </div>
+        </td>
+        <td><span class="action-tag">${actionLabel}</span></td>
+        <td style="font-family:'DM Mono',monospace;color:var(--text-muted)">${c.login_count_since_kyc}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function getScoreColor(score) {
+  if (score >= 70) return 'var(--critical)';
+  if (score >= 50) return 'var(--high)';
+  if (score >= 30) return 'var(--medium)';
+  return 'var(--low)';
+}
+
+// --- DETAIL PANEL ---
+
+async function selectCustomer(id) {
+  selectedId = id;
+  const c = allCustomers.find(x => x.customer_id === id);
+  if (!c) return;
+
+  // Re-render list to show selection
+  const filtered = activeFilter
+    ? allCustomers.filter(x => x.priority === activeFilter)
+    : allCustomers;
+  renderCustomers(filtered);
+
+  const panel = document.getElementById('detailPanel');
+  const actionLabel = c.recommended_action.replace(/_/g, ' ');
+  const markets = c.preferred_markets.join(', ');
+
+  const scoreFactors = [
+    { label: 'Recency', value: c.scores.recency, max: 30, color: '#6C8EEF' },
+    { label: 'Engagement', value: c.scores.engagement, max: 25, color: '#6CEFB1' },
+    { label: 'Intent', value: c.scores.intent, max: 20, color: '#EFA76C' },
+    { label: 'Account', value: c.scores.account_type, max: 15, color: '#EF6CDB' },
+    { label: 'Profile', value: c.scores.profile, max: 10, color: '#EFDA6C' },
+  ];
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="customer-name">${c.full_name}</div>
+      <div class="customer-id">${c.customer_id} · ${c.country} · ${c.device}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Profile</div>
+      <div class="detail-grid">
+        <div class="detail-field">
+          <div class="field-label">Account</div>
+          <div class="field-value">${c.account_type}</div>
+        </div>
+        <div class="detail-field">
+          <div class="field-label">Experience</div>
+          <div class="field-value">${c.trading_experience}</div>
+        </div>
+        <div class="detail-field">
+          <div class="field-label">Markets</div>
+          <div class="field-value">${markets}</div>
+        </div>
+        <div class="detail-field">
+          <div class="field-label">Deposit page</div>
+          <div class="field-value">${c.visited_deposit_page ? 'Visited' : 'Not visited'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Score Breakdown — ${c.total_score.toFixed(1)}/100</div>
+      <div class="score-breakdown">
+        ${scoreFactors.map(f => `
+          <div class="breakdown-row">
+            <span class="breakdown-label">${f.label}</span>
+            <div class="breakdown-bar">
+              <div class="breakdown-bar-fill" style="width:${(f.value / f.max) * 100}%;background:${f.color}"></div>
+            </div>
+            <span class="breakdown-value">${f.value.toFixed(1)}/${f.max}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Recommended Action</div>
+      <div class="action-card">
+        <div class="action-name">${actionLabel}</div>
+        <div class="action-reason">${c.action_reason}</div>
+        <div class="action-urgency">Urgency: ${c.urgency}</div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Generated Email</div>
+      <button class="btn btn-accent" onclick="generateEmail('${c.customer_id}', false)" style="margin-bottom:8px">Template Email</button>
+      <button class="btn btn-accent" onclick="generateEmail('${c.customer_id}', true)" style="margin-bottom:8px;margin-left:6px">LLM Email</button>
+      <div id="emailContent">
+        <div class="email-loading">Click a button to generate an email</div>
+      </div>
+    </div>
+  `;
+}
+
+async function generateEmail(customerId, useLlm) {
+  const emailDiv = document.getElementById('emailContent');
+  emailDiv.innerHTML = '<div class="email-loading">Generating email...</div>';
+
+  try {
+    const res = await fetch(
+      `${API}/customers/${customerId}/email?use_llm=${useLlm}`
+    );
+    const email = await res.json();
+    emailDiv.innerHTML = `
+      <div class="email-card">
+        <div class="email-subject">${email.subject}</div>
+        <div class="email-body">${email.body}</div>
+        <div class="email-meta">Generated by: ${email.generated_by}</div>
+      </div>
+    `;
+  } catch (err) {
+    emailDiv.innerHTML = '<div class="email-loading">Failed to generate email</div>';
+  }
+}
+
+// --- INIT ---
+loadDashboard();
+</script>
+</body>
+</html>

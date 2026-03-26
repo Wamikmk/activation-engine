@@ -3,6 +3,8 @@ from fastapi import FastAPI, HTTPException
 from engine.llm import generate_email
 from engine.scorer import score_customer
 from engine.router import route_customer
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="Customer Activation Engine",
@@ -10,7 +12,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
+@app.get("/dashboard")
+def serve_dashboard():
+    """Serve the web dashboard."""
+    return FileResponse("dashboard/index.html")
+    
 # --- Data loading and processing on startup ---
+
 
 def load_and_process_customers():
     """Load customers, score them, route them. Runs once at startup."""
