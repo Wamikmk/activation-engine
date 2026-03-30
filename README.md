@@ -88,7 +88,7 @@ dashboard/index.html       → Web dashboard (priority queue, detail view, email
 ### Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/activation-engine.git
+git clone https://github.com/Wamikmk/activation-engine.git
 cd activation-engine
 python3 -m venv venv
 source venv/bin/activate
