@@ -6,7 +6,7 @@ An AI-powered system that identifies, scores, and activates customers who comple
 
 Every fintech platform faces the same brutal reality: **85-95% of users who complete identity verification never deposit a single dollar.**
 
-At a fintech platform, which has (4M+ users, 180+ countries), this means millions of verified accounts sitting idle. The onboarding cost is already spent KYC verification, compliance checks, account setup — but the customer never generates revenue.
+At a fintech platform, which has thousands of users spanning many countries, this means millions of verified accounts sitting idle. The onboarding cost is already spent KYC verification, compliance checks, account setup  but the customer never generates revenue.
 
 The industry response is usually one of two extremes:
 - **Blast everyone with the same generic "Make your first deposit!" email.** Low effort, low conversion. A beginner interested in crypto gets the same message as an advanced forex trader who visited the deposit page 5 times.
