@@ -1,6 +1,6 @@
 # Customer Activation Engine
 
-An AI-powered system that identifies, scores, and activates customers who complete KYC onboarding but never make their first deposit — the single biggest revenue leak in fintech platforms.
+An AI-powered system that identifies, scores, and activates customers who complete KYC onboarding but never make their first deposit  the single biggest revenue leak in fintech platforms.
 
 ## The Problem
 
@@ -22,14 +22,14 @@ The Activation Engine automates that decision pipeline:
 Customer completes KYC → Score by urgency → Decide action → Generate personalized outreach
 ```
 
-**1. Priority Scoring (0-100)** — Five weighted factors using exponential decay and logarithmic scaling:
-- Recency (30pts) — How recently they completed KYC. Exponential decay models the reality that urgency drops fast in week 1, then flattens.
-- Engagement (25pts) — Login frequency. Logarithmic scaling captures diminishing returns — the jump from 1 to 5 logins matters more than 15 to 20.
-- Intent (20pts) — Visited deposit page + account type combination. The strongest behavioral signal.
-- Account Type (15pts) — Live vs demo. Live signals real-money intent.
-- Profile (10pts) — Trading experience + market preferences. Weaker signal but adds targeting nuance.
+**1. Priority Scoring (0-100)** : Five weighted factors using exponential decay and logarithmic scaling:
+- Recency (30pts) : How recently they completed KYC. Exponential decay models the reality that urgency drops fast in week 1, then flattens.
+- Engagement (25pts) : Login frequency. Logarithmic scaling captures diminishing returns — the jump from 1 to 5 logins matters more than 15 to 20.
+- Intent (20pts) : Visited deposit page + account type combination. The strongest behavioral signal.
+- Account Type (15pts) : Live vs demo. Live signals real-money intent.
+- Profile (10pts) : Trading experience + market preferences. Weaker signal but adds targeting nuance.
 
-**2. Action Routing** — The router examines score breakdowns, not just totals. Two customers scoring 65 can get completely different actions:
+**2. Action Routing** : The router examines score breakdowns, not just totals. Two customers scoring 65 can get completely different actions:
 - A customer who scored 65 from high recency + low engagement → personalized nudge email (they're new, guide them)
 - A customer who scored 65 from high engagement + low recency → sales call (they're interested but something is blocking them)
 
