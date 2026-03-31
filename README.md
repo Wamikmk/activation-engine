@@ -132,7 +132,7 @@ LLM APIs fail. Credits run out. Networks go down. The system should always produ
 
 ```
 activation-engine/
-├── CLAUDE.md               ← Project context for Claude Code
+              ← Project context for Claude Code
 ├── README.md
 ├── requirements.txt
 ├── data/
